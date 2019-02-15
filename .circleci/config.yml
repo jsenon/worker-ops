@@ -19,7 +19,7 @@ jobs:
       - run: 
           name: Test
           command: |
-            go test -v ./...
+            go test ./...
       # - run: 
       #     name: Lint
       #     command: |
