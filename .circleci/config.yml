@@ -21,7 +21,8 @@ jobs:
           name: Lint
           command: |
             curl -L https://git.io/vp6lP | sh
-            ./bin/gometalinter ./... 
+            export PATH=$PATH:$PWD/bin
+            gometalinter ./... 
       - run: 
           name: Code Coverage
           command: |
