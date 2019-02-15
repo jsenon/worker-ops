@@ -24,11 +24,12 @@ spec:
         - name: SLACK_URL
           value: ""
         command: ["./worker-ops"]
-        args: [server,--apibefore,"6",--debug]
+        args: [server,--apibefore,"5",--debug]
         imagePullPolicy: Always
         volumeMounts:
           - name: awsconfig
-            mountPath: /home/root/.aws/credentials
+            mountPath: /home/.aws/credentials
+            subPath: credentials
         ports:
           - containerPort: 8080 # Do not change port
         resources:
