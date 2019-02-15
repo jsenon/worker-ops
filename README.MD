@@ -1,4 +1,6 @@
 [![CircleCI](https://circleci.com/gh/jsenon/worker-ops.svg?style=svg)](https://circleci.com/gh/jsenon/worker-ops)
+[![Go Report Card](https://goreportcard.com/badge/github.com/jsenon/worker-ops)](https://goreportcard.com/report/github.com/jsenon/worker-ops)
+
 # Worker Ops
 
 This is a tool to report usage of worker node
