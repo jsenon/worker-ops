@@ -1,11 +1,13 @@
-FROM golang:1.11.5 as build-env
+FROM golang:latest as build
 
-WORKDIR /go/src/app
+WORKDIR $GOPATH/src/github.com/jsenon/worker-ops
 COPY . .
 
-RUN go get -d -v ./...
-RUN go install -v ./...
+RUN go version && go get -u -v golang.org/x/vgo
+RUN vgo install ./...
 
 FROM gcr.io/distroless/base
-COPY --from=build-env /go/bin/app /
-CMD ["/app"]
+COPY --from=build /go/bin/worker-ops /
+ENV PORT=8080
+EXPOSE 8080
+CMD ["/worker-ops"]

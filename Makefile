@@ -17,14 +17,13 @@ APP_VERSION := latest
 default: depend test lint build swagger
 
 depend:
-	go get -u github.com/golang/dep
-	dep ensure
+	go get -u -v golang.org/x/vgo
+	vgo generate ./...
 test:
 	go test -v ./...
 build_local:
-	go build 
+	vgo build ./...
 build:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
 	docker build $(DOCKER_BUILD_ARGS) -t $(DOCKER_USER)/worker-ops:$(APP_VERSION)  .
 lint:
 	go get -u github.com/alecthomas/gometalinter
