@@ -1,0 +1,147 @@
+basePath: /
+definitions:
+  FullInstances:
+    description: FullInstances represent instances link to a profile in the credential
+      file
+    properties:
+      env:
+        description: 'in: body'
+        type: string
+        x-go-name: Env
+      instances:
+        items:
+          $ref: '#/definitions/Instance'
+        type: array
+        x-go-name: Instances
+    type: object
+    x-go-package: github.com/jsenon/worker-ops/internal/generate
+  Instance:
+    description: Instance struct represent instance with its name, dns name, launch
+      time and region
+    properties:
+      dnsname:
+        type: string
+        x-go-name: Dnsname
+      launchtime:
+        format: date-time
+        type: string
+        x-go-name: Launchtime
+      name:
+        type: string
+        x-go-name: Name
+      region:
+        type: string
+        x-go-name: Region
+    type: object
+    x-go-package: github.com/jsenon/worker-ops/pkg/aws
+host: localhost
+info:
+  contact:
+    email: julien.senon@delair.aero
+    name: Julien SENON
+  description: |-
+    the purpose of this application is to provide an application
+    to monitor Worker Node
+  license:
+    name: Apache 2.0
+    url: https://opensource.org/licenses/Apache-2.0
+  termsOfService: there are no TOS at this moment, use at your own risk we take no
+    responsibility
+  title: Worker-Ops API.
+  version: 0.0.1
+paths:
+  /.well-known:
+    get:
+      operationId: wellknown
+      produces:
+      - application/json
+      responses:
+        "200":
+          $ref: '#/responses/wellknownResponse'
+      schemes:
+      - http
+      summary: Have Well known Info.
+  /healthz:
+    get:
+      operationId: healthz
+      produces:
+      - application/json
+      responses:
+        "200":
+          $ref: '#/responses/healthCheckResponse'
+      schemes:
+      - http
+      summary: Have Health Info.
+  /metrics:
+    get:
+      operationId: metrics
+      produces:
+      - application/json
+      responses:
+        "200":
+          $ref: '#/responses/someResponse'
+      schemes:
+      - http
+      summary: Have prometheus metrics.
+  /report:
+    get:
+      operationId: report
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: FullInstances
+          schema:
+            $ref: '#/definitions/FullInstances'
+      schemes:
+      - http
+      summary: Have the report of all worker node.
+  /send:
+    get:
+      operationId: sendreport
+      produces:
+      - application/json
+      responses:
+        "200":
+          $ref: '#/responses/someResponse'
+      schemes:
+      - http
+      summary: Send the reports.
+produces:
+- application/json
+responses:
+  healthCheckResponse:
+    description: A healthCheckResponse respresent configuration of the application
+    headers:
+      status:
+        type: string
+  someResponse:
+    description: Fake metrics struct
+  wellknownResponse:
+    description: A wellknownResponse respresent configuration of the application
+    headers:
+      Branch:
+        type: string
+      Builddate:
+        type: string
+      Endpoints:
+        type: string
+      Healthzurl:
+        type: string
+      Metricurl:
+        type: string
+      Revision:
+        type: string
+      Servicedescription:
+        type: string
+      Servicename:
+        type: string
+      Swaggerdocurl:
+        type: string
+      Version:
+        type: string
+      Versionfull:
+        type: string
+schemes:
+- http
+swagger: "2.0"

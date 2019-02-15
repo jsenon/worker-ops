@@ -1,0 +1,88 @@
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: "8080"
+  name: worker-ops
+spec:
+  selector:
+    matchLabels:
+      app: worker-ops
+      version: v.0.0.1
+  template:
+    metadata:
+      labels:
+        app: worker-ops
+        version: v.0.0.1
+    spec:
+      containers:
+      - name: worker-ops
+        image: docker.io/jsenon/worker-ops:latest
+        env:
+        - name: SLACK_URL
+          value: ""
+        command: ["./worker-ops"]
+        args: [server,--apibefore,"6",--debug]
+        imagePullPolicy: Always
+        volumeMounts:
+          - name: awsconfig
+            mountPath: /home/root/.aws/credentials
+        ports:
+          - containerPort: 8080 # Do not change port
+        resources:
+          limits:
+            memory: 256Mi
+            cpu: "1"
+      volumes:
+      - name: awsconfig
+        configMap:
+          name: awsconfigmap
+---
+# SVC
+kind: Service
+apiVersion: v1
+metadata:
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: "8080"
+  name: worker-ops
+spec:
+  selector:
+    app: worker-ops
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+---
+# Cronjob
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: job-worker-ops
+spec:
+  schedule: "0 */6 * 1-12 0-6"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: curl
+            image: docker.io/jsenon/toolingcontainer:latest
+            command: ["curl"]
+            args: [http://worker-ops:8080/send]
+          restartPolicy: OnFailure
+---
+apiVersion: v1
+items:
+- apiVersion: v1
+  data:
+    credentials: |
+      [dev]
+      aws_access_key_id = 
+      aws_secret_access_key = 
+  kind: ConfigMap
+  metadata:
+    name: awsconfigmap
+kind: List
