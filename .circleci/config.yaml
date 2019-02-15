@@ -1,0 +1,53 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.11
+        environment:
+          GO111MODULE: "ON"
+    working_directory: /go/src/github.com/jsenon/worker-ops
+    steps:
+      - checkout
+      - setup_remote_docker
+
+
+      # specify any bash command here prefixed with `run: `
+      
+      - restore_cache:
+            keys:
+              - go-mod-v1-{{ checksum "go.sum" }}
+      - run: 
+          name: Test
+          command: |
+            go test -v ./...
+      # - run: 
+      #     name: Lint
+      #     command: |
+      #       go get -u github.com/alecthomas/gometalinter
+      #       gometalinter --install
+      #       gometalinter ./... --exclude=vendor --deadline=60s
+      - run: 
+          name: Code Coverage
+          command: |
+            bash <(curl -s https://codecov.io/bash)
+      - run: 
+          name: Build App
+          command: |
+            CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build 
+      - run:
+          name: Build application Docker image
+          command: |
+            docker build -t jsenon/worker-app:latest .
+      - run: 
+          name: DockerHub Login
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+      - run:
+          name: Push to registry
+          command: |
+            docker push $DOCKER_USER/worker-app:latest
+
+      - save_cache:
+          key: go-mod-v1-{{ checksum "go.sum" }}
+          paths:
+            - "/go/pkg/mod"

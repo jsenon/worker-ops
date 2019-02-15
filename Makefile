@@ -14,16 +14,15 @@ APP_VERSION := latest
 #-----------------------------------------------------------------------------
 
 .PHONY: default build test publish build_local lint
-default: depend test lint build swagger
+default:  test lint build swagger
 
-depend:
-	go get -u -v golang.org/x/vgo
-	vgo generate ./...
 test:
 	go test -v ./...
 build_local:
-	vgo build ./...
+	go mod tidy
+	go build ./...
 build:
+	go mod tidy
 	docker build $(DOCKER_BUILD_ARGS) -t $(DOCKER_USER)/worker-ops:$(APP_VERSION)  .
 lint:
 	go get -u github.com/alecthomas/gometalinter
