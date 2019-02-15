@@ -16,7 +16,8 @@
     ".gen.go",
     "^vendor",
     ".*mocks.*",
-    "\\.generated\\."
+    "\\.generated\\.",
+    "../../../../pkg/mod"
   ],
   "Enable": [
     "deadcode",

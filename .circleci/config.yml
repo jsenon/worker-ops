@@ -17,11 +17,11 @@ jobs:
           name: Test
           command: |
             go test ./...
-      # - run: 
-      #     name: Lint
-      #     command: |
-      #       curl -L https://git.io/vp6lP | sh
-      #       gometalinter ./... --deadline=180s
+      - run: 
+          name: Lint
+          command: |
+            curl -L https://git.io/vp6lP | sh
+            gometalinter ./... 
       - run: 
           name: Code Coverage
           command: |
