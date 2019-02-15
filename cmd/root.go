@@ -48,7 +48,7 @@ func Execute() {
 //init initialize cobra root command
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().BoolVar(&loglevel, "debug", false, "Set log level to Debug")
+	rootCmd.PersistentFlags().BoolVar(&loglevel, "debug", false, "Set log level to Debug") //nolint
 	rootCmd.PersistentFlags().StringVar(&jaegerurl, "jaegerurl", "", "Set jaegger collector endpoint")
 
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
