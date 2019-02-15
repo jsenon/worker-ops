@@ -5,6 +5,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+// var represent prometheus gauge definition
 var (
 	WorkerNumber = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{

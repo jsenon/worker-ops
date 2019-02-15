@@ -20,7 +20,7 @@ type Instance struct {
 	Region     string    `json:"region"`
 }
 
-// RetrieveInstances print all instances associated with credential on all region, some filters is aplied staticaly
+// RetrieveInstances print all instances associated with credential on all region, some filters is applied staticaly
 func RetrieveInstances(ctx context.Context, creds *credentials.Credentials, account string, region string, vartime int) (instances []Instance, err error) {
 
 	sess := session.Must(session.NewSession())
@@ -74,7 +74,7 @@ func RetrieveInstances(ctx context.Context, creds *credentials.Credentials, acco
 	return instances, nil
 }
 
-// CountInstances calculate number of instances associated with credential on all region, some filters is aplied staticaly
+// CountInstances calculate number of instances associated with credential on all region, some filters is applied staticaly
 func CountInstances(ctx context.Context, creds *credentials.Credentials, account string, region string) (nbr int, err error) {
 	sess := session.Must(session.NewSession())
 	svc := ec2.New(sess, &aws.Config{

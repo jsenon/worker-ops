@@ -8,12 +8,12 @@ import (
 	"runtime"
 	"strconv"
 
+	"github.com/jsenon/worker-ops/internal/generate"
+	"github.com/jsenon/worker-ops/internal/slack"
 	opentracing "github.com/opentracing/opentracing-go"
 	tracelog "github.com/opentracing/opentracing-go/log"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
-	"github.com/jsenon/worker-ops/internal/generate"
-	"github.com/jsenon/worker-ops/internal/slack"
 )
 
 // A healthCheckResponse respresent configuration of the application
@@ -40,7 +40,7 @@ type wellknownResponse struct {
 
 //Fake metrics struct
 //swagger:response someResponse
-type someResponse struct {
+type someResponse struct { // nolint: deadcode
 }
 
 // WellKnownFingerHandler will provide the information about the service.
@@ -145,7 +145,10 @@ func Report(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Length", strconv.Itoa(len(json)))
 
-	w.Write(json)
+	_, err = w.Write(json)
+	if err != nil {
+		log.Error().Msgf("Error %s", err.Error())
+	}
 
 }
 
@@ -180,7 +183,7 @@ func SendReport(w http.ResponseWriter, r *http.Request) {
 }
 
 //Metric Fake for swagger
-func metrics() {
+func metrics() { // nolint: deadcode
 
 	// swagger:route GET /metrics metrics
 	//

@@ -9,9 +9,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/jsenon/worker-ops/internal/generate"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
-	"github.com/jsenon/worker-ops/internal/generate"
 )
 
 //Geturl Retrieve Url form env
@@ -30,7 +30,7 @@ func Tomsg(ctx context.Context, msg []generate.FullInstances) {
 
 	for _, n := range msg {
 
-		slackmsg = "Worker still runing since " + viper.GetString("apibefore") + " hour(s) in " + n.Env + " environment: \n"
+		slackmsg = "Worker still running since " + viper.GetString("apibefore") + " hour(s) in " + n.Env + " environment: \n"
 
 		for _, o := range n.Instances {
 			slackmsg = slackmsg + " Name: " + o.Name + " DNS: " + o.Dnsname + " on region: " + o.Region + " Started since UTC: " + o.Launchtime.String() + "\n"

@@ -97,7 +97,7 @@ func StartReporter() {
 	if len(myresult) > 0 {
 		for _, n := range myresult {
 
-			stdoutmsg = "Worker still runing since " + viper.GetString("before") + " hour(s) in " + n.Env + " environment: \n"
+			stdoutmsg = "Worker still running since " + viper.GetString("before") + " hour(s) in " + n.Env + " environment: \n"
 
 			for _, o := range n.Instances {
 				stdoutmsg = stdoutmsg + " Name: " + o.Name + " DNS: " + o.Dnsname + " on region: " + o.Region + " Started since UTC: " + o.Launchtime.String() + "\n"

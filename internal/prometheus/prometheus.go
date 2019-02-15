@@ -9,16 +9,13 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	awspkg "github.com/jsenon/worker-ops/pkg/aws"
+	pkgprometheus "github.com/jsenon/worker-ops/pkg/prometheus"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 	ini "github.com/vaughan0/go-ini"
-	awspkg "github.com/jsenon/worker-ops/pkg/aws"
-	pkgprometheus "github.com/jsenon/worker-ops/pkg/prometheus"
 )
-
-//env will be use in order to check different environment
-var env string
 
 //LauchRecord will start thread for worker calculation
 func LauchRecord(ctx context.Context) {
@@ -36,7 +33,6 @@ func LauchRecord(ctx context.Context) {
 		os.Exit(1)
 	}
 
-	//TODO loop on env
 	for key, values := range file {
 		account := key
 		key := values["aws_access_key_id"]

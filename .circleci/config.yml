@@ -20,9 +20,8 @@ jobs:
       # - run: 
       #     name: Lint
       #     command: |
-      #       go get -u github.com/alecthomas/gometalinter
-      #       gometalinter --install
-      #       gometalinter ./... --exclude=vendor --deadline=60s
+      #       curl -L https://git.io/vp6lP | sh
+      #       gometalinter ./... --deadline=180s
       - run: 
           name: Code Coverage
           command: |
