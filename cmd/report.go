@@ -25,8 +25,10 @@ import (
 
 	"github.com/jsenon/worker-ops/config"
 	"github.com/jsenon/worker-ops/internal/generate"
+	"github.com/jsenon/worker-ops/pkg/jaegerexporter"
 	opentracing "github.com/opentracing/opentracing-go"
 	tracelog "github.com/opentracing/opentracing-go/log"
+	"go.opencensus.io/trace"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -91,8 +93,8 @@ func StartReporter() {
 	remotejaegurl := viper.GetString("jaegerurl")
 	if remotejaegurl != "" {
 		log.Debug().Msg("Jaeger endpoint has been defined")
-		// jaegerexporter.NewExporterCollector()
-		// trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
+		jaegerexporter.NewExporterCollector()
+		trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
 	}
 
 	myresult, err := generate.Launch(ctx, span, vartime)
