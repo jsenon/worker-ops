@@ -5,6 +5,7 @@ import (
 	"context"
 	"os"
 
+	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 
@@ -26,7 +27,11 @@ type FullInstances struct {
 }
 
 //Launch launch static generation of worker state
-func Launch(ctx context.Context, vartime int) ([]FullInstances, error) {
+func Launch(ctx context.Context, sp opentracing.Span, vartime int) ([]FullInstances, error) {
+	span := opentracing.StartSpan(
+		"(*worker-ops).Launch",
+		opentracing.ChildOf(sp.Context()))
+	defer span.Finish()
 
 	log.Debug().Msgf("Starting reporting on all regions with all your credentials")
 
@@ -70,7 +75,7 @@ func Launch(ctx context.Context, vartime int) ([]FullInstances, error) {
 		for _, region := range regions.Regions {
 
 			// Get Instances info
-			instances, err := awspkg.RetrieveInstances(ctx, creds, account, *region.RegionName, vartime)
+			instances, err := awspkg.RetrieveInstances(ctx, span, creds, account, *region.RegionName, vartime)
 			if err != nil {
 				log.Error().Msgf("Fail to get instance: %v", err)
 				return nil, err

@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 	awspkg "github.com/jsenon/worker-ops/pkg/aws"
 	pkgprometheus "github.com/jsenon/worker-ops/pkg/prometheus"
+	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
@@ -18,8 +19,11 @@ import (
 )
 
 //LauchRecord will start thread for worker calculation
-func LauchRecord(ctx context.Context) {
-
+func LauchRecord(ctx context.Context, sp opentracing.Span) {
+	span := opentracing.StartSpan(
+		"(*worker-ops).LaunchRecord",
+		opentracing.ChildOf(sp.Context()))
+	defer span.Finish()
 	config := os.Getenv("HOME") + viper.GetString("credfile")
 	if _, err := os.Stat(config); os.IsNotExist(err) {
 		log.Error().Msgf("No config file found at: %v", config)
@@ -53,7 +57,7 @@ func LauchRecord(ctx context.Context) {
 		// Loop over all regions
 		for _, region := range regions.Regions {
 			// Get Instances info
-			metricValue, err := awspkg.CountInstances(ctx, creds, account, *region.RegionName)
+			metricValue, err := awspkg.CountInstances(ctx, span, creds, account, *region.RegionName)
 			if err != nil {
 				log.Error().Msgf("Fail describe region: %v", err)
 			}

@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/rs/zerolog/log"
 )
 
@@ -21,8 +22,11 @@ type Instance struct {
 }
 
 // RetrieveInstances print all instances associated with credential on all region, some filters is applied staticaly
-func RetrieveInstances(ctx context.Context, creds *credentials.Credentials, account string, region string, vartime int) (instances []Instance, err error) {
-
+func RetrieveInstances(ctx context.Context, sp opentracing.Span, creds *credentials.Credentials, account string, region string, vartime int) (instances []Instance, err error) {
+	span := opentracing.StartSpan(
+		"(*worker-ops).RetrieveInstances",
+		opentracing.ChildOf(sp.Context()))
+	defer span.Finish()
 	sess := session.Must(session.NewSession())
 
 	// instances := []Instance{}
@@ -75,7 +79,11 @@ func RetrieveInstances(ctx context.Context, creds *credentials.Credentials, acco
 }
 
 // CountInstances calculate number of instances associated with credential on all region, some filters is applied staticaly
-func CountInstances(ctx context.Context, creds *credentials.Credentials, account string, region string) (nbr int, err error) {
+func CountInstances(ctx context.Context, sp opentracing.Span, creds *credentials.Credentials, account string, region string) (nbr int, err error) {
+	span := opentracing.StartSpan(
+		"(*worker-ops).CountInstances",
+		opentracing.ChildOf(sp.Context()))
+	defer span.Finish()
 	sess := session.Must(session.NewSession())
 	svc := ec2.New(sess, &aws.Config{
 		Credentials: creds,

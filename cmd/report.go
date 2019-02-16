@@ -25,6 +25,8 @@ import (
 
 	"github.com/jsenon/worker-ops/config"
 	"github.com/jsenon/worker-ops/internal/generate"
+	opentracing "github.com/opentracing/opentracing-go"
+	tracelog "github.com/opentracing/opentracing-go/log"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -79,6 +81,9 @@ func init() {
 
 //StartReporter Start Static Report
 func StartReporter() {
+	span, _ := opentracing.StartSpanFromContext(context.Background(), "(*woker-ops).StartReporter")
+	span.LogFields(
+		tracelog.String("event", "Launch static report"))
 	ctx := context.Background()
 	var stdoutmsg string
 	vartime := viper.GetInt("before")
@@ -90,14 +95,14 @@ func StartReporter() {
 		// trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
 	}
 
-	myresult, err := generate.Launch(ctx, vartime)
+	myresult, err := generate.Launch(ctx, span, vartime)
 	if err != nil {
 		log.Error().Msgf("Error Generate report: %v", err)
 	}
 	if len(myresult) > 0 {
 		for _, n := range myresult {
 
-			stdoutmsg = "Worker still running since " + viper.GetString("before") + " hour(s) in " + n.Env + " environment: \n"
+			stdoutmsg = "Worker still running more than " + viper.GetString("before") + " hour(s) in " + n.Env + " environment: \n"
 
 			for _, o := range n.Instances {
 				stdoutmsg = stdoutmsg + " Name: " + o.Name + " DNS: " + o.Dnsname + " on region: " + o.Region + " Started since UTC: " + o.Launchtime.String() + "\n"

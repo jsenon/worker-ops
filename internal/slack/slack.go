@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/jsenon/worker-ops/internal/generate"
+	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
@@ -23,14 +24,18 @@ func geturl() (url string) {
 }
 
 //Tomsg Transform message
-func Tomsg(ctx context.Context, msg []generate.FullInstances) {
+func Tomsg(ctx context.Context, sp opentracing.Span, msg []generate.FullInstances) {
+	span := opentracing.StartSpan(
+		"(*worker-ops).Tomsg",
+		opentracing.ChildOf(sp.Context()))
+	defer span.Finish()
 	var slackmsg string
 
 	url := geturl()
 
 	for _, n := range msg {
 
-		slackmsg = "Worker still running since " + viper.GetString("apibefore") + " hour(s) in " + n.Env + " environment: \n"
+		slackmsg = "Worker still running more than " + viper.GetString("apibefore") + " hour(s) in " + n.Env + " environment: \n"
 
 		for _, o := range n.Instances {
 			slackmsg = slackmsg + " Name: " + o.Name + " DNS: " + o.Dnsname + " on region: " + o.Region + " Started since UTC: " + o.Launchtime.String() + "\n"

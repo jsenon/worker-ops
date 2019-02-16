@@ -27,12 +27,14 @@ import (
 	"net/http"
 	"time"
 
+	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/rs/zerolog/log"
 
 	intprometheus "github.com/jsenon/worker-ops/internal/prometheus"
 	"github.com/jsenon/worker-ops/internal/restapi"
 	pkgprometheus "github.com/jsenon/worker-ops/pkg/prometheus"
 
+	tracelog "github.com/opentracing/opentracing-go/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -42,7 +44,11 @@ func ServeRest(ctx context.Context) {
 
 	go func() {
 		for {
-			intprometheus.LauchRecord(ctx)
+			span, _ := opentracing.StartSpanFromContext(context.Background(), "(*woker-ops).MetricsHandler")
+			span.LogFields(
+				tracelog.String("event", "Prometheus metrics launch"))
+			defer span.Finish()
+			intprometheus.LauchRecord(ctx, span)
 			time.Sleep(1 * time.Second)
 		}
 	}()

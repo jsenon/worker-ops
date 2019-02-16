@@ -98,7 +98,7 @@ func Health(w http.ResponseWriter, _ *http.Request) {
 	//
 	//     Responses:
 	//       200: healthCheckResponse
-	span, _ := opentracing.StartSpanFromContext(context.Background(), "(*woker-ops).WellKnownFingerHandler")
+	span, _ := opentracing.StartSpanFromContext(context.Background(), "(*woker-ops).HealthHandler")
 	span.LogFields(
 		tracelog.String("event", "Received REST /healthz"))
 	defer span.Finish()
@@ -128,12 +128,16 @@ func Report(w http.ResponseWriter, r *http.Request) {
 	//
 	//     Responses:
 	//       200: body:FullInstances
+	span, _ := opentracing.StartSpanFromContext(context.Background(), "(*woker-ops).ReportHandler")
+	span.LogFields(
+		tracelog.String("event", "Received REST /report"))
+	defer span.Finish()
 	log.Debug().Msgf("Sarting Reporting")
 	ctx := r.Context()
 
 	vartime := viper.GetInt("apibefore")
 
-	myresult, err := generate.Launch(ctx, vartime)
+	myresult, err := generate.Launch(ctx, span, vartime)
 	if err != nil {
 		log.Error().Msgf("Error %s", err.Error())
 	}
@@ -167,18 +171,22 @@ func SendReport(w http.ResponseWriter, r *http.Request) {
 	//
 	//     Responses:
 	//       200: someResponse
+	span, _ := opentracing.StartSpanFromContext(context.Background(), "(*woker-ops).SendReportHandler")
+	span.LogFields(
+		tracelog.String("event", "Received REST /send"))
+	defer span.Finish()
 	log.Debug().Msgf("Sarting Sending")
 	ctx := r.Context()
 
 	vartime := viper.GetInt("apibefore")
 
-	myresult, err := generate.Launch(ctx, vartime)
+	myresult, err := generate.Launch(ctx, span, vartime)
 	if err != nil {
 		log.Error().Msgf("Error %s", err.Error())
 	}
 
 	log.Debug().Msgf("To slack transfo: %v", myresult)
-	slack.Tomsg(ctx, myresult)
+	slack.Tomsg(ctx, span, myresult)
 
 }
 
