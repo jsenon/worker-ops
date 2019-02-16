@@ -11,4 +11,5 @@ require (
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/viper v1.3.1
 	github.com/vaughan0/go-ini v0.0.0-20130923145212-a98ad7ee00ec
+	go.opencensus.io v0.19.0
 )
