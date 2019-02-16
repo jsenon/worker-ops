@@ -17,8 +17,8 @@ func NewExporterCollector() {
 	addressjaeger := viper.GetString("jaegerurl")
 	log.Debug().Msgf("In NewExporterCollector func, jaeger set to: %s", addressjaeger)
 	exporter, err := jaeger.NewExporter(jaeger.Options{
-		CollectorEndpoint: addressjaeger,
-		ServiceName:       "worker-ops",
+		AgentEndpoint: addressjaeger,
+		ServiceName:   "worker-ops",
 	},
 	)
 	if err != nil {
