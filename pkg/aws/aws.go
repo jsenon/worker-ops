@@ -23,7 +23,7 @@ type Instance struct {
 
 // RetrieveInstances print all instances associated with credential on all region, some filters is applied staticaly
 func RetrieveInstances(ctx context.Context, sp opentracing.Span, creds *credentials.Credentials, account string, region string, vartime int) (instances []Instance, err error) {
-	span := opentracing.StartSpan(
+	span := opentracing.GlobalTracer().StartSpan(
 		"(*worker-ops).RetrieveInstances",
 		opentracing.ChildOf(sp.Context()))
 	defer span.Finish()
@@ -79,11 +79,10 @@ func RetrieveInstances(ctx context.Context, sp opentracing.Span, creds *credenti
 }
 
 // CountInstances calculate number of instances associated with credential on all region, some filters is applied staticaly
-func CountInstances(ctx context.Context, sp opentracing.Span, creds *credentials.Credentials, account string, region string) (nbr int, err error) {
-	span := opentracing.StartSpan(
-		"(*worker-ops).CountInstances",
-		opentracing.ChildOf(sp.Context()))
-	defer span.Finish()
+func CountInstances(ctx context.Context, parent opentracing.Span, creds *credentials.Credentials, account string, region string) (nbr int, err error) {
+	child := opentracing.GlobalTracer().StartSpan(
+		"(*worker-ops).CountInstances", opentracing.ChildOf(parent.Context()))
+	defer child.Finish()
 	sess := session.Must(session.NewSession())
 	svc := ec2.New(sess, &aws.Config{
 		Credentials: creds,

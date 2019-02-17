@@ -28,7 +28,7 @@ type FullInstances struct {
 
 //Launch launch static generation of worker state
 func Launch(ctx context.Context, sp opentracing.Span, vartime int) ([]FullInstances, error) {
-	span := opentracing.StartSpan(
+	span := opentracing.GlobalTracer().StartSpan(
 		"(*worker-ops).Launch",
 		opentracing.ChildOf(sp.Context()))
 	defer span.Finish()

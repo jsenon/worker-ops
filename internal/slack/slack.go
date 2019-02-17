@@ -25,7 +25,7 @@ func geturl() (url string) {
 
 //Tomsg Transform message
 func Tomsg(ctx context.Context, sp opentracing.Span, msg []generate.FullInstances) {
-	span := opentracing.StartSpan(
+	span := opentracing.GlobalTracer().StartSpan(
 		"(*worker-ops).Tomsg",
 		opentracing.ChildOf(sp.Context()))
 	defer span.Finish()

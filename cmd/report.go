@@ -25,10 +25,8 @@ import (
 
 	"github.com/jsenon/worker-ops/config"
 	"github.com/jsenon/worker-ops/internal/generate"
-	"github.com/jsenon/worker-ops/pkg/jaegerexporter"
 	opentracing "github.com/opentracing/opentracing-go"
 	tracelog "github.com/opentracing/opentracing-go/log"
-	"go.opencensus.io/trace"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -83,21 +81,15 @@ func init() {
 
 //StartReporter Start Static Report
 func StartReporter() {
-	span, _ := opentracing.StartSpanFromContext(context.Background(), "(*woker-ops).StartReporter")
-	span.LogFields(
-		tracelog.String("event", "Launch static report"))
 	ctx := context.Background()
+	parent := opentracing.StartSpan("(*woker-ops).StartReporter")
+	defer parent.Finish()
+	parent.LogFields(
+		tracelog.String("event", "Received static report"))
 	var stdoutmsg string
 	vartime := viper.GetInt("before")
 
-	remotejaegurl := viper.GetString("jaegerurl")
-	if remotejaegurl != "" {
-		log.Debug().Msg("Jaeger endpoint has been defined")
-		jaegerexporter.NewExporterCollector()
-		trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
-	}
-
-	myresult, err := generate.Launch(ctx, span, vartime)
+	myresult, err := generate.Launch(ctx, parent, vartime)
 	if err != nil {
 		log.Error().Msgf("Error Generate report: %v", err)
 	}

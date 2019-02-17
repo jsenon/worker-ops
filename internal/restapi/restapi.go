@@ -2,7 +2,6 @@
 package restapi
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"runtime"
@@ -58,7 +57,7 @@ func WellKnownFingerHandler(w http.ResponseWriter, _ *http.Request) {
 	//
 	//     Responses:
 	//       200: wellknownResponse
-	span, _ := opentracing.StartSpanFromContext(context.Background(), "(*woker-ops).WellKnownFingerHandler")
+	span := opentracing.GlobalTracer().StartSpan("(*woker-ops).WellKnownFingerHandler")
 	span.LogFields(
 		tracelog.String("event", "Received REST /.well-known"))
 	defer span.Finish()
@@ -98,18 +97,18 @@ func Health(w http.ResponseWriter, _ *http.Request) {
 	//
 	//     Responses:
 	//       200: healthCheckResponse
-	span, _ := opentracing.StartSpanFromContext(context.Background(), "(*woker-ops).HealthHandler")
-	span.LogFields(
+	parent := opentracing.GlobalTracer().StartSpan("(*woker-ops).HealthHandler")
+	defer parent.Finish()
+	parent.LogFields(
 		tracelog.String("event", "Received REST /healthz"))
-	defer span.Finish()
 	data, err := json.Marshal(healthCheckResponse{Status: "UP"})
 	if err != nil {
 		log.Error().Msgf("Error %s", err.Error())
-		span.LogFields(tracelog.String("Error", err.Error()))
+		parent.LogFields(tracelog.String("Error", err.Error()))
 		runtime.Goexit()
 	}
 	log.Debug().Msgf("Debug Marshall health: %v", data)
-	writeJSONResponse(span, w, http.StatusOK, data)
+	writeJSONResponse(parent, w, http.StatusOK, data)
 
 }
 
@@ -128,7 +127,7 @@ func Report(w http.ResponseWriter, r *http.Request) {
 	//
 	//     Responses:
 	//       200: body:FullInstances
-	span, _ := opentracing.StartSpanFromContext(context.Background(), "(*woker-ops).ReportHandler")
+	span := opentracing.GlobalTracer().StartSpan("(*woker-ops).ReportHandler")
 	span.LogFields(
 		tracelog.String("event", "Received REST /report"))
 	defer span.Finish()
@@ -171,7 +170,7 @@ func SendReport(w http.ResponseWriter, r *http.Request) {
 	//
 	//     Responses:
 	//       200: someResponse
-	span, _ := opentracing.StartSpanFromContext(context.Background(), "(*woker-ops).SendReportHandler")
+	span := opentracing.GlobalTracer().StartSpan("(*woker-ops).SendReportHandler")
 	span.LogFields(
 		tracelog.String("event", "Received REST /send"))
 	defer span.Finish()
@@ -208,19 +207,17 @@ func metrics() { // nolint: deadcode
 }
 
 // writeJsonResponse will convert response to json
-func writeJSONResponse(ctx opentracing.Span, w http.ResponseWriter, status int, data []byte) {
-	sp := opentracing.StartSpan(
-		"(*worker-ops).writeJSONResponse",
-		opentracing.ChildOf(ctx.Context()))
-	defer sp.Finish()
-	sp.LogFields(tracelog.String("event", "Write string to JSON"))
-	defer sp.Finish()
+func writeJSONResponse(parent opentracing.Span, w http.ResponseWriter, status int, data []byte) {
+	child := opentracing.GlobalTracer().StartSpan(
+		"(*worker-ops).writeJSONResponse", opentracing.ChildOf(parent.Context()))
+	defer child.Finish()
+	child.LogFields(tracelog.String("event", "Write string to JSON"))
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Length", strconv.Itoa(len(data)))
 	w.WriteHeader(status)
 	_, err := w.Write(data)
 	if err != nil {
 		log.Error().Msgf("Error %s", err.Error())
-		sp.LogFields(tracelog.String("Error", err.Error()))
+		child.LogFields(tracelog.String("Error", err.Error()))
 	}
 }
