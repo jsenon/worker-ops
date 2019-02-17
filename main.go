@@ -56,6 +56,7 @@ func main() {
 		log.Printf("Could not initialize jaeger tracer: %s", err.Error())
 		return
 	}
-	defer closer.Close()
+	defer closer.Close() //nolint
+
 	cmd.Execute()
 }
