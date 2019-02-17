@@ -23,10 +23,7 @@ import (
 	"runtime"
 
 	"github.com/jsenon/worker-ops/config"
-	"github.com/jsenon/worker-ops/pkg/jaegerexporter"
 	"github.com/jsenon/worker-ops/pkg/rest"
-	"go.opencensus.io/trace"
-
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -57,7 +54,7 @@ var apiCmd = &cobra.Command{
 			}
 		}
 		log.Debug().Msg("Log level set to Debug")
-		log.Debug().Msgf("Jaeger Remote URL %s", viper.GetString("jaegerurl"))
+		log.Debug().Msgf("Jaeger Remote URL %s", os.Getenv("JAEGER_ENDPOINT"))
 
 		StartAPI()
 	},
@@ -78,12 +75,5 @@ func init() {
 //StartAPI Start the server
 func StartAPI() {
 	ctx := context.Background()
-	remotejaegurl := viper.GetString("jaegerurl")
-	if remotejaegurl != "" {
-		log.Debug().Msg("Jaeger endpoint has been defined")
-		jaegerexporter.NewExporterCollector()
-		trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
-	}
-
 	rest.ServeRest(ctx)
 }

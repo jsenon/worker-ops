@@ -34,7 +34,7 @@ jobs:
       - run:
           name: Build application Docker image
           command: |
-            docker build -t jsenon/worker-app:latest .
+            docker build -t jsenon/worker-ops:0.0.2 .
       - run: 
           name: DockerHub Login
           command: |
@@ -42,7 +42,7 @@ jobs:
       - run:
           name: Push to registry
           command: |
-            docker push $DOCKER_USER/worker-app:latest
+            docker push $DOCKER_USER/worker-ops:0.0.2
 
       - save_cache:
           key: go-mod-v1-{{ checksum "go.sum" }}

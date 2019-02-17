@@ -41,14 +41,13 @@ import (
 
 //ServeRest will launch Gin Server and server routes
 func ServeRest(ctx context.Context) {
-
 	go func() {
 		for {
-			span, _ := opentracing.StartSpanFromContext(context.Background(), "(*woker-ops).MetricsHandler")
-			span.LogFields(
+			parent := opentracing.StartSpan("Metrics")
+			defer parent.Finish()
+			parent.LogFields(
 				tracelog.String("event", "Prometheus metrics launch"))
-			defer span.Finish()
-			intprometheus.LauchRecord(ctx, span)
+			intprometheus.LauchRecord(ctx, parent)
 			time.Sleep(1 * time.Second)
 		}
 	}()
