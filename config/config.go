@@ -3,6 +3,10 @@ package config
 // Global Config of the application
 const (
 	Service     = "worker-ops"
-	Version     = "v.0.0.2"
 	Description = "Worker Application Reporter"
 )
+
+// Dynamic version retrieve with ldflags
+var Version string
+var GitCommit string
+var BuildDate string

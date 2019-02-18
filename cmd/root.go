@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/jsenon/worker-ops/config"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -28,6 +29,7 @@ import (
 var cfgFile string
 var loglevel bool
 var jaegerurl string
+var version bool
 
 //rootCmd is the root of the command line
 var rootCmd = &cobra.Command{
@@ -35,6 +37,11 @@ var rootCmd = &cobra.Command{
 	Short: "Utility to report worker state",
 	Long: `An Utility to launch reporter for worker node, or launch a web server API
 to export usage to prometheus, and send report to slack`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if version {
+			fmt.Printf("Version: %v, build from: %v, on: %v\n", config.Version, config.GitCommit, config.BuildDate)
+		}
+	},
 }
 
 //Execute will launch command line
@@ -50,6 +57,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().BoolVar(&loglevel, "debug", false, "Set log level to Debug") //nolint
 	rootCmd.PersistentFlags().StringVar(&jaegerurl, "jaegerurl", "", "Set jaegger collector endpoint")
+	rootCmd.PersistentFlags().BoolVar(&version, "version", false, "version")
 
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	err := viper.BindPFlag("jaegerurl", rootCmd.PersistentFlags().Lookup("jaegerurl"))
@@ -57,6 +65,7 @@ func init() {
 		log.Error().Msgf("Error binding jaegerurl value: %v", err.Error())
 	}
 	viper.SetDefault("jaegerurl", "")
+
 }
 
 //initConfig reads in config file and ENV variables if set.

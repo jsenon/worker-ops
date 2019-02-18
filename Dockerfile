@@ -11,8 +11,8 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
-
+# RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
+RUN make build_local
 
 FROM gcr.io/distroless/base
 COPY --from=build /app/worker-ops /

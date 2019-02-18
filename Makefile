@@ -8,6 +8,17 @@ DOCKER_PASS ?=
 DOCKER_BUILD_ARGS := --build-arg HTTP_PROXY=$(http_proxy) --build-arg HTTPS_PROXY=$(https_proxy)
 
 APP_VERSION := latest
+PACKAGE ?= $(shell go list ./... | grep config)
+VERSION ?= $(shell git describe --tags --always || git rev-parse --short HEAD)
+GIT_COMMIT=$(shell git rev-parse HEAD)
+BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
+
+
+override LDFLAGS += \
+  -X ${PACKAGE}.Version=${VERSION} \
+  -X ${PACKAGE}.BuildDate=${BUILD_DATE} \
+  -X ${PACKAGE}.GitCommit=${GIT_COMMIT} \
+
 
 #-----------------------------------------------------------------------------
 # BUILD
@@ -20,7 +31,7 @@ test:
 	go test -v ./...
 build_local:
 	go mod tidy
-	go build ./...
+	go build -ldflags '${LDFLAGS}' -o worker-ops  
 build:
 	go mod tidy
 	docker build $(DOCKER_BUILD_ARGS) -t $(DOCKER_USER)/worker-ops:$(APP_VERSION)  .
