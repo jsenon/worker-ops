@@ -7,6 +7,7 @@ const (
 )
 
 // Dynamic version retrieve with ldflags
+
 // Version represent version of application
 var Version string
 
